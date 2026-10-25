@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<meta name="theme-color" content="#171717">
+
+<link rel="manifest" href="./manifest.json">
+
+<title>SAINT-AMOUR BAR PRO</title>
+
+<link rel="stylesheet" href="css/style.css">
+<body>
+  <!-- ÉCRAN DE CONNEXION -->
+<section id="ecranConnexion" class="page">
+    <div class="carte-connexion">
+        <h1>SAINT-AMOUR BAR PRO</h1>
+        <p>Gestion commerciale sécurisée</p>
+
+        <div id="configurationDirecteur" class="cache">
+            <h2>Créer le premier compte Directeur</h2>
+
+            <form id="formPremierDirecteur">
+                <label for="nomDirecteur">Nom complet</label>
+                <input id="nomDirecteur" type="text"
+                       autocomplete="name" required>
+
+                <label for="identifiantDirecteur">Identifiant</label>
+                <input id="identifiantDirecteur" type="text"
+                       autocomplete="username" required>
+
+                <label for="motDePasseDirecteur">Mot de passe</label>
+                <input id="motDePasseDirecteur" type="password"
+                       autocomplete="new-password"
+                       minlength="10" required>
+
+                <button type="submit">Créer le compte Directeur</button>
+            </form>
+        </div>
+
+        <div id="formulaireConnexion">
+            <h2>Connexion</h2>
+
+            <form id="formConnexion">
+                <label for="identifiantConnexion">Identifiant</label>
+                <input id="identifiantConnexion" type="text"
+                       autocomplete="username" required>
+
+                <label for="motDePasseConnexion">Mot de passe</label>
+                <input id="motDePasseConnexion" type="password"
+                       autocomplete="current-password" required>
+
+                <button type="submit">Se connecter</button>
+            </form>
+        </div>
+
+        <p id="messageConnexion" role="status" aria-live="polite"></p>
+    </div>
+</section>
+
+<header class="entete">
+    <div>
+        <h1>SAINT-AMOUR BAR PRO</h1>
+        <p>Gestion commerciale hors connexion</p>
+    </div>
+
+    <span id="etatConnexion">Hors connexion</span>
+  <div id="informationsUtilisateur" class="cache">
+    <span id="nomUtilisateurConnecte"></span>
+    <span id="roleUtilisateurConnecte"></span>
+    <button type="button" id="boutonDeconnexion">
+        Déconnexion
+    </button>
+  </div>
+</header>
+
+<nav class="menu" aria-label="Navigation principale">
+
+    <button type="button"
+            data-page="accueil"
+            class="actif">
+        Accueil
+    </button>
+
+    <button type="button" data-page="ventes">
+        Ventes
+    </button>
+
+    <button type="button" data-page="produits">
+        Produits
+    </button>
+
+    <button type="button" data-page="stock">
+        Stock
+    </button>
+
+    <button type="button" data-page="caisse">
+        Caisse
+    </button>
+
+    <button type="button" data-page="depenses">
+        Dépenses
+    </button>
+
+    <button type="button" data-page="dettes">
+        Dettes
+    </button>
+
+    <button type="button" data-page="rapports">
+        Rapports
+    </button>
+
+    <button type="button" data-page="parametres">
+        Paramètres
+    </button>
+<button type="button" data-page="synchronisation">
+        Synchronisation
+</button>
+    <button type="button" data-page="sauvegarde">
+        Sauvegarde
+    </button>
+
+</nav>
+  <button type="button" data-page="utilisateurs">
+    Utilisateurs
+  </button>
+
+<main>
+
+    <!-- TABLEAU DE BORD -->
+
+    <section class="page" id="page-accueil">
+
+        <h2>Tableau de bord</h2>
+
+        <div class="statistiques">
+
+            <article class="carte">
+                <h3>Ventes du jour</h3>
+                <p id="statVentes">0 FCFA</p>
+            </article>
+
+            <article class="carte">
+                <h3>Dépenses du jour</h3>
+                <p id="statDepenses">0 FCFA</p>
+            </article>
+
+            <article class="carte">
+                <h3>Bénéfice brut estimé</h3>
+                <p id="statBenefice">0 FCFA</p>
+            </article>
+
+            <article class="carte">
+                <h3>Produits enregistrés</h3>
+                <p id="statProduits">0</p>
+            </article>
+
+            <article class="carte">
+                <h3>Ruptures de stock</h3>
+                <p id="statRuptures">0</p>
+            </article>
+
+            <article class="carte">
+                <h3>Stocks faibles</h3>
+                <p id="statStockFaible">0</p>
+            </article>
+
+        </div>
+
+        <div class="carte">
+            <h3>Évolution des ventes</h3>
+
+            <div id="graphiqueVentes">
+                Chargement du graphique...
+            </div>
+        </div>
+
+        <button type="button"
+                id="actualiserTableauBord">
+            Actualiser le tableau de bord
+        </button>
+
+    </section>
+
+
+    <!-- VENTES -->
+
+    <section class="page cache" id="page-ventes">
+
+        <h2>Nouvelle vente</h2>
+
+        <label for="codeProduit">
+            Code-barres ou nom du produit
+        </label>
+
+        <input
+            id="codeProduit"
+            type="text"
+            autocomplete="off"
+            placeholder="Scanner ou saisir le code"
+        >
+
+        <button type="button" id="boutonScanner">
+            Scanner le code-barres
+        </button>
+
+        <div id="zoneScanner" class="cache">
+
+            <video
+                id="videoScanner"
+                playsinline
+                muted>
+            </video>
+
+            <button
+                type="button"
+                id="arreterScanner">
+                Arrêter le scanner
+            </button>
+
+        </div>
+
+        <label for="quantiteVente">
+            Quantité à vendre
+        </label>
+
+        <input
+            id="quantiteVente"
+            type="number"
+            min="1"
+            step="1"
+            value="1"
+        >
+
+        <button
+            type="button"
+            id="ajouterPanier">
+            Ajouter au panier
+        </button>
+
+        <div class="table-responsive">
+
+            <table>
+
+                <thead>
+    <tr>
+        <th>Produit</th>
+        <th>Qte</th>
+        <th>Prix unitaire</th>
+        <th>Total</th>
+        <th>Actions</th>
+    </tr>
+</thead>
+
+                <tbody id="lignesPanier"></tbody>
+
+            <thead>  
+                    <tr>__</tr>  
+            </thead></table>
+
+        </div>
+
+        <p>
+            Total à payer :
+            <strong id="totalPanier">0 FCFA</strong>
+        </p>
+
+        <label for="montantPaye">
+            Montant reçu (FCFA)
+        </label>
+
+        <input
+            id="montantPaye"
+            type="number"
+            min="0"
+            step="1"
+            value="0"
+        >
+
+        <label for="modePaiement">
+            Mode de paiement
+        </label>
+
+        <select id="modePaiement">
+
+            <option value="Espèces">Espèces</option>
+
+            <option value="Orange Money">
+                Orange Money
+            </option>
+
+            <option value="Moov Money">
+                Moov Money
+            </option>
+
+            <option value="Telecel Money">
+                Telecel Money
+            </option>
+
+            <option value="Autre">Autre</option>
+
+        </select>
+
+        <p>
+            Monnaie à rendre :
+            <strong id="monnaie">0 FCFA</strong>
+        </p>
+
+        <button type="button" id="encaisser">
+            Encaisser la vente
+        </button>
+
+        <button type="button" id="imprimerTicket">
+            Imprimer le dernier ticket
+        </button>
+
+        <p id="messageVente" role="status"></p>
+
+    </section>
+
+
+    <!-- PRODUITS -->
+
+    <section class="page cache" id="page-produits">
+
+        <h2>Gestion des produits</h2>
+
+        <form id="formProduit">
+
+            <label for="nomProduit">
+                Nom du produit *
+            </label>
+
+            <input id="nomProduit" required>
+
+            <label for="codeNouveauProduit">
+                Code-barres
+            </label>
+
+            <input id="codeNouveauProduit">
+
+            <label for="marqueProduit">
+                Marque
+            </label>
+
+            <input id="marqueProduit">
+
+            <label for="categorieProduit">
+                Catégorie
+            </label>
+
+            <select id="categorieProduit">
+
+                <option value="Boissons">Boissons</option>
+                <option value="Bières">Bières</option>
+                <option value="Alcools">Alcools</option>
+                <option value="Jus">Jus</option>
+                <option value="Eaux">Eaux</option>
+                <option value="Autres">Autres</option>
+
+            </select>
+
+            <label for="fournisseurProduit">
+                Fournisseur
+            </label>
+
+            <input id="fournisseurProduit">
+
+            <label for="prixAchat">
+                Prix d'achat (FCFA) *
+            </label>
+
+            <input
+                id="prixAchat"
+                type="number"
+                min="0"
+                step="1"
+                required
+            >
+
+            <label for="prixVente">
+                Prix de vente (FCFA) *
+            </label>
+
+            <input
+                id="prixVente"
+                type="number"
+                min="0"
+                step="1"
+                required
+            >
+
+            <label for="quantiteStock">
+                Quantité initiale en stock *
+            </label>
+
+            <input
+                id="quantiteStock"
+                type="number"
+                min="0"
+                step="1"
+                value="0"
+                required
+            >
+
+            <button type="submit">
+                Enregistrer le produit
+            </button>
+
+        </form>
+
+        <label for="rechercheProduit">
+            Rechercher un produit
+        </label>
+
+        <input
+            id="rechercheProduit"
+            placeholder="Nom ou code-barres"
+        >
+
+        <div id="listeProduits"></div>
+
+    </section>
+
+
+    <!-- STOCK -->
+
+    <section class="page cache" id="page-stock">
+
+        <h2>Gestion du stock</h2>
+
+        <div id="listeStock"></div>
+
+    </section>
+
+
+    <!-- CAISSE -->
+
+    <section class="page cache" id="page-caisse">
+
+        <h2>Historique de caisse</h2>
+
+        <div id="historiqueCaisse"></div>
+
+    </section>
+
+
+    <!-- DEPENSES -->
+
+    <section class="page cache" id="page-depenses">
+
+        <h2>Gestion des dépenses</h2>
+
+        <form id="formDepense">
+
+            <label for="libelleDepense">
+                Libellé de la dépense
+            </label>
+
+            <input id="libelleDepense" required>
+
+            <label for="montantDepense">
+                Montant (FCFA)
+            </label>
+
+            <input
+                id="montantDepense"
+                type="number"
+                min="1"
+                step="1"
+                required
+            >
+
+            <label for="dateDepense">
+                Date
+            </label>
+
+            <input
+                id="dateDepense"
+                type="date"
+            >
+
+            <button type="submit">
+                Enregistrer la dépense
+            </button>
+
+        </form>
+
+        <div id="listeDepenses"></div>
+
+    </section>
+
+
+    <!-- DETTES -->
+
+    <section class="page cache" id="page-dettes">
+
+        <h2>Gestion des dettes</h2>
+
+        <form id="formDette">
+
+            <label for="nomClientDette">
+                Nom du client
+            </label>
+
+            <input id="nomClientDette" required>
+
+            <label for="telephoneClientDette">
+                Téléphone
+            </label>
+
+            <input
+                id="telephoneClientDette"
+                type="tel"
+                inputmode="tel"
+            >
+
+            <label for="montantDette">
+                Montant de la dette (FCFA)
+            </label>
+
+            <input
+                id="montantDette"
+                type="number"
+                min="1"
+                step="1"
+                required
+            >
+
+            <label for="descriptionDette">
+                Description
+            </label>
+
+            <textarea
+                id="descriptionDette"
+                rows="3">
+            </textarea>
+
+            <button type="submit">
+                Enregistrer la dette
+            </button>
+
+        </form>
+
+        <div id="listeDettes"></div>
+
+    </section>
+
+
+    <!-- RAPPORTS -->
+
+    <section class="page cache" id="page-rapports">
+
+        <h2>Rapports</h2>
+
+        <p>
+            Consulte les historiques et utilise les fonctions
+            d'exportation disponibles dans tes modules.
+        </p>
+
+        <button type="button" id="exporterDonnees">
+            Exporter les données
+        </button>
+
+        <div id="contenuRapports"></div>
+
+    </section>
+
+
+    <!-- PARAMETRES -->
+
+    <section class="page cache" id="page-parametres">
+
+        <h2>Paramètres</h2>
+
+        <p>
+            Les données sont conservées dans la base locale
+            du navigateur.
+        </p>
+
+        <button type="button" id="sauvegarderDonnees">
+            Lancer la sauvegarde
+        </button>
+
+        <p id="messageParametres" role="status"></p>
+<div class="carte">
+    <h3>Connexion au serveur</h3>
+
+    <p id="resultatTestSupabase">
+        Connexion non testée.
+    </p>
+
+    <button type="button" id="boutonTesterSupabase">
+        Tester Supabase
+    </button>
+</div>
+    </section>
+
+
+    <!-- SAUVEGARDE -->
+
+    <section class="page cache" id="page-sauvegarde">
+
+        <h2>Sauvegarde et restauration</h2>
+
+        <div id="panneauSauvegarde">
+
+            <p>
+                Utilise les fonctions de sauvegarde existantes
+                pour protéger les données de ton application.
+            </p>
+
+        </div>
+
+    </section>
+  <!-- UTILISATEURS --><section class="page cache" id="page-utilisateurs">
+    <div id="contenuUtilisateurs"></div>
+  </section>
+<section id="page-synchronisation" class="page cache">
+    <h2>Synchronisation</h2>
+
+    <p>
+        Vérifie la connexion à Supabase et l'état des données locales.
+    </p>
+
+    <div id="contenuPrincipal"></div>
+</section>
+</main>
+
+<footer>
+    CHATGPT BAR PRO — Gestion commerciale hors connexion
+</footer>
+
+
+<!-- Modules existants : conserver leur ordre de chargement -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/database.js"></script>
+<script src="js/supabase.js"></script>
+
+<script src="js/produits.js"></script>
+<script src="js/ventes.js"></script>
+<script src="js/stock.js"></script>
+<script src="js/caisse.js"></script>
+<script src="js/depenses.js"></script>
+<script src="js/dettes.js"></script>
+<script src="js/utilisateurs.js"></script>
+<script src="js/synchronisation.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script src="js/scanner.js"></script>
+<script src="js/sauvegarde.js"></script>
+<script src="js/rapports.js"></script>
+<script src="js/app.js"></script>
+  <script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js")
+            .then(function () {
+                console.log("Service worker enregistré.");
+            })
+            .catch(function (erreur) {
+                console.error("Erreur du service worker :", erreur);
+            });
+    });
+}
+  </script>
+</body>
+</html>
