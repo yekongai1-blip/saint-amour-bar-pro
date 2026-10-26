@@ -1,0 +1,25 @@
+{
+  "id": "./index.html",
+  "name": "SAINT-AMOUR BAR PRO",
+  "short_name": "SAINT-AMOUR",
+  "description": "Application de gestion de bar, des ventes et du stock.",
+  "lang": "fr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111111",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
