@@ -639,4 +639,130 @@ async function actualiserStatistiques() {
             });
         }
 
-        (ventes || []).forEach(vente =>
+        (ventes || []).forEach(vente => {
+            const cle = dateLocale(vente.date || vente.dateCreation);
+            const jour = jours.find(element => element.cle === cle);
+
+            if (jour) {
+                jour.montant += Number(vente.total) || 0;
+            }
+        });
+
+        const maximum = Math.max(1, ...jours.map(jour => jour.montant));
+
+        conteneur.innerHTML = "";
+
+        const zone = document.createElement("div");
+
+        zone.style.cssText =
+            "display:flex;align-items:flex-end;justify-content:space-around;" +
+            "gap:8px;width:100%;padding:12px 4px;overflow:hidden";
+
+        jours.forEach(jour => {
+            const colonne = document.createElement("div");
+
+            colonne.style.cssText =
+                "flex:1;min-width:0;display:flex;flex-direction:column;" +
+                "align-items:center;justify-content:flex-end;height:190px;gap:7px";
+
+            colonne.title = jour.nom + " : " + formaterFCFA(jour.montant);
+
+            const montant = document.createElement("span");
+            montant.style.cssText =
+                "font-size:10px;text-align:center;overflow-wrap:anywhere";
+            montant.textContent = jour.montant.toLocaleString("fr-FR");
+
+            const barre = document.createElement("div");
+            barre.style.cssText =
+                "width:70%;max-width:42px;background:#d4af37;" +
+                "border-radius:5px 5px 0 0;min-height:2px";
+
+            barre.style.height = (
+                jour.montant > 0
+                    ? Math.max(4, jour.montant / maximum * 130)
+                    : 2
+            ) + "px";
+
+            const nom = document.createElement("span");
+            nom.style.cssText = "font-size:11px;text-align:center";
+            nom.textContent = jour.nom;
+
+            colonne.append(montant, barre, nom);
+            zone.appendChild(colonne);
+        });
+
+        conteneur.appendChild(zone);
+
+        const legende = document.createElement("p");
+        legende.style.cssText =
+            "text-align:center;font-size:12px;color:#bdbdbd;margin:0 0 8px";
+        legende.textContent =
+            "Chiffre d'affaires — 7 derniers jours";
+
+        conteneur.appendChild(legende);
+    }
+
+    /* ==========================================
+       DÉMARRAGE DE L'APPLICATION
+       ========================================== */
+
+    async function initialiserApplication() {
+        if (demarrageEnCours) return;
+
+        demarrageEnCours = true;
+
+        try {
+            if (typeof ouvrirBase !== "function") {
+                throw new Error("La fonction ouvrirBase() est introuvable.");
+            }
+
+            await ouvrirBase();
+
+            if (!U) {
+                throw new Error("Le module utilisateurs.js n'est pas chargé.");
+            }
+
+            initialiserAuthentification();
+            initialiserNavigation();
+
+            const boutonActualiser = $("actualiserTableauBord");
+
+            if (
+                boutonActualiser &&
+                !boutonActualiser.dataset.initialise
+            ) {
+                boutonActualiser.dataset.initialise = "oui";
+
+                boutonActualiser.addEventListener(
+                    "click",
+                    actualiserStatistiques
+                );
+            }
+
+            const sessionValide = await U.restaurerSession();
+
+            if (sessionValide) {
+                afficherApplication();
+            } else {
+                await afficherEcranConnexion();
+            }
+        } catch (erreur) {
+            console.error("Erreur d'initialisation :", erreur);
+
+            await afficherEcranConnexion();
+        } finally {
+            demarrageEnCours = false;
+        }
+
+        console.log("SAINT-AMOUR BAR PRO : initialisation terminée.");
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            initialiserApplication,
+            { once: true }
+        );
+    } 
+})();
+initialiserAuthentification
