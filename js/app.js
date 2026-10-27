@@ -511,12 +511,28 @@ break;
             }
         }
     }
+function actualiserDateAccueil() {
+    const element = $("dateAccueil");
 
+    if (!element) return;
+
+    element.textContent = new Date().toLocaleDateString(
+        "fr-FR",
+        {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }
+    );
+}
     /* ==========================================
        TABLEAU DE BORD
        ========================================== */
 
     async function actualiserStatistiques() {
+       actualiserDateAccueil();
+       
         if (!U || !U.estConnecte() || !U.aAcces("accueil")) return;
 
         try {
