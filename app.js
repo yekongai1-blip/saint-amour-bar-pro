@@ -517,98 +517,106 @@ break;
        ========================================== */
 
     async function actualiserStatistiques() {
-        if (!U || !U.estConnecte() || !U.aAcces("accueil")) return;
+    function actualiserDateAccueil() {
+    const element = $("dateAccueil");
+    if (!element) return;
 
-        try {
-            const [ventes, depenses, produits] = await Promise.all([
-                lireTous("ventes"),
-                lireTous("depenses"),
-                lireTous("produits")
-            ]);
+    element.textContent = new Date().toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+}
 
-            const aujourdHui = dateLocale(new Date());
+async function actualiserStatistiques() {
+    actualiserDateAccueil();
 
-            const ventesDuJour = (ventes || []).filter(vente => {
-                const statut = String(vente.statut || "").toLowerCase();
+    if (!U || !U.estConnecte() || !U.aAcces("accueil")) return;
 
-                if ([
-                    "annulée", "annulee", "annulé", "annule",
-                    "supprimée", "supprimee"
-                ].includes(statut)) {
-                    return false;
-                }
+    try {
+        const [ventes, depenses, produits] = await Promise.all([
+            lireTous("ventes"),
+            lireTous("depenses"),
+            lireTous("produits")
+        ]);
 
-                return dateLocale(vente.date || vente.dateCreation) === aujourdHui;
+        const aujourdHui = dateLocale(new Date());
+
+        const ventesDuJour = (ventes || []).filter(vente => {
+            const statut = String(vente.statut || "").toLowerCase();
+
+            if ([
+                "annulée", "annulee", "annulé", "annule",
+                "supprimée", "supprimee"
+            ].includes(statut)) {
+                return false;
+            }
+
+            return dateLocale(vente.date || vente.dateCreation) === aujourdHui;
+        });
+
+        const depensesDuJour = (depenses || []).filter(depense =>
+            dateLocale(depense.date || depense.dateCreation) === aujourdHui
+        );
+
+        const chiffreAffaires = ventesDuJour.reduce(
+            (total, vente) => total + (Number(vente.total) || 0),
+            0
+        );
+
+        const totalDepenses = depensesDuJour.reduce(
+            (total, depense) => total + (Number(depense.montant) || 0),
+            0
+        );
+
+        const produitsParId = new Map(
+            (produits || []).map(produit => [
+                String(produit.id),
+                produit
+            ])
+        );
+
+        let beneficeBrut = 0;
+
+        ventesDuJour.forEach(vente => {
+            const lignes = Array.isArray(vente.lignes) ? vente.lignes : [];
+
+            lignes.forEach(ligne => {
+                const produit = produitsParId.get(String(ligne.idProduit));
+                const prixVente = Number(ligne.prixUnitaire) || 0;
+                const prixAchat = produit ? Number(produit.prixAchat) || 0 : 0;
+                const quantite = Number(ligne.quantite) || 0;
+
+                beneficeBrut += (prixVente - prixAchat) * quantite;
             });
+        });
 
-            const depensesDuJour = (depenses || []).filter(depense =>
-                dateLocale(depense.date || depense.dateCreation) === aujourdHui
-            );
+        const listeProduits = produits || [];
 
-            const chiffreAffaires = ventesDuJour.reduce(
-                (total, vente) => total + (Number(vente.total) || 0),
-                0
-            );
+        const ruptures = listeProduits.filter(produit =>
+            (Number(produit.quantiteStock) || 0) <= 0
+        );
 
-            const totalDepenses = depensesDuJour.reduce(
-                (total, depense) => total + (Number(depense.montant) || 0),
-                0
-            );
+        const stocksFaibles = listeProduits.filter(produit => {
+            const quantite = Number(produit.quantiteStock) || 0;
+            const seuil = Number(produit.seuilAlerte) || 5;
 
-            const produitsParId = new Map(
-                (produits || []).map(produit => [
-                    String(produit.id),
-                    produit
-                ])
-            );
+            return quantite > 0 && quantite <= seuil;
+        });
 
-            let beneficeBrut = 0;
+        mettreAJour("statVentes", formaterFCFA(chiffreAffaires));
+        mettreAJour("statDepenses", formaterFCFA(totalDepenses));
+        mettreAJour("statBenefice", formaterFCFA(beneficeBrut));
+        mettreAJour("statProduits", listeProduits.length);
+        mettreAJour("statRuptures", ruptures.length);
+        mettreAJour("statStockFaible", stocksFaibles.length);
 
-            ventesDuJour.forEach(vente => {
-                const lignes = Array.isArray(vente.lignes)
-                    ? vente.lignes
-                    : [];
-
-                lignes.forEach(ligne => {
-                    const produit = produitsParId.get(
-                        String(ligne.idProduit)
-                    );
-
-                    const prixVente = Number(ligne.prixUnitaire) || 0;
-                    const prixAchat = produit
-                        ? Number(produit.prixAchat) || 0
-                        : 0;
-                    const quantite = Number(ligne.quantite) || 0;
-
-                    beneficeBrut += (prixVente - prixAchat) * quantite;
-                });
-            });
-
-            const listeProduits = produits || [];
-
-            const ruptures = listeProduits.filter(produit =>
-                (Number(produit.quantiteStock) || 0) <= 0
-            );
-
-            const stocksFaibles = listeProduits.filter(produit => {
-                const quantite = Number(produit.quantiteStock) || 0;
-                const seuil = Number(produit.seuilAlerte) || 5;
-
-                return quantite > 0 && quantite <= seuil;
-            });
-
-            mettreAJour("statVentes", formaterFCFA(chiffreAffaires));
-            mettreAJour("statDepenses", formaterFCFA(totalDepenses));
-            mettreAJour("statBenefice", formaterFCFA(beneficeBrut));
-            mettreAJour("statProduits", listeProduits.length);
-            mettreAJour("statRuptures", ruptures.length);
-            mettreAJour("statStockFaible", stocksFaibles.length);
-
-            afficherGraphiqueVentes(ventesDuJour);
-        } catch (erreur) {
-            console.error("Erreur du tableau de bord :", erreur);
-        }
+        afficherGraphiqueVentes(ventesDuJour);
+    } catch (erreur) {
+        console.error("Erreur du tableau de bord :", erreur);
     }
+}
 
     function afficherGraphiqueVentes(ventes) {
         const conteneur = $("graphiqueVentes");
