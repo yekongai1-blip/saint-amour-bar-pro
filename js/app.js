@@ -772,7 +772,7 @@ function actualiserDateAccueil() {
             initialiserApplication,
             { once: true }
         );
-    } 
+    } else {
+        initialiserApplication();
+    }
 })();
-initialiserAuthentification
- 
