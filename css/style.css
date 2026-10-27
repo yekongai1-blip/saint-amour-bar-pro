@@ -1,568 +1,310 @@
-:root {
-    --fond: #111111;
-    --panneau: #1e1e1e;
-    --or: #d4af37;
-    --texte: #ffffff;
-    --secondaire: #bdbdbd;
-    --bordure: #383838;
-    --vert: #188754;
-    --rouge: #c0392b;
-}
+/* ==========================================
+   ACCUEIL MODERNE - SAINT-AMOUR BAR PRO
+   ========================================== */
 
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: var(--fond);
+.accueil-pro {
     color: var(--texte);
-    line-height: 1.5;
 }
 
-.entete {
-    padding: 20px 15px;
-    background: #080808;
-    border-bottom: 3px solid var(--or);
+.accueil-titre,
+.titre-section-accueil,
+.graphique-entete {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 10px;
-}
-
-.entete h1 {
-    margin: 0;
-    color: var(--or);
-    font-size: 22px;
-}
-
-.entete p {
-    margin: 5px 0 0;
-    color: var(--secondaire);
-    font-size: 13px;
-}
-
-#etatConnexion {
-    background: #26352b;
-    color: #7ee2a8;
-    padding: 7px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-}
-
-.menu {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 12px;
-    background: #171717;
-    border-bottom: 1px solid var(--bordure);
-}
-
-button {
-    border: none;
-    border-radius: 7px;
-    padding: 12px 15px;
-    background: var(--or);
-    color: #151515;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.menu button {
-    background: var(--panneau);
-    color: var(--texte);
-    border: 1px solid var(--bordure);
-}
-
-.menu button.actif {
-    background: var(--or);
-    color: #111111;
-}
-
-button:active {
-    transform: scale(0.98);
-}
-
-main {
-    padding: 15px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.page h2 {
-    color: var(--or);
-    border-bottom: 1px solid var(--bordure);
-    padding-bottom: 10px;
-}
-
-.cache {
-    display: none !important;
-}
-
-.statistiques {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
-    margin: 20px 0;
 }
 
-.carte {
-    background: var(--panneau);
-    border: 1px solid var(--bordure);
-    border-left: 4px solid var(--or);
-    border-radius: 10px;
-    padding: 15px;
-    overflow-wrap: anywhere;
+.accueil-titre {
+    margin-bottom: 22px;
 }
 
-.carte h3 {
+.accueil-titre h2 {
+    margin: 5px 0;
+    border: 0;
+    padding: 0;
+    font-size: 27px;
+}
+
+.accueil-titre p,
+.titre-section-accueil p,
+.graphique-entete p {
     color: var(--secondaire);
+    margin: 4px 0;
     font-size: 13px;
-    margin-top: 0;
 }
 
-.carte p {
+.surtitre {
     color: var(--or);
-    font-size: 21px;
+    font-size: 11px;
     font-weight: bold;
-    margin-bottom: 0;
+    letter-spacing: 2px;
 }
 
-form {
-    background: var(--panneau);
-    padding: 15px;
-    border: 1px solid var(--bordure);
-    border-radius: 10px;
-    margin: 15px 0;
+.banniere-accueil {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px;
+    margin-bottom: 28px;
+    border-radius: 16px;
+    border: 1px solid #39425c;
+    background:
+        radial-gradient(circle at 90% 20%, #34456d 0, transparent 35%),
+        linear-gradient(120deg, #17213b, #252c48);
+    overflow: hidden;
 }
 
-label {
-    display: block;
-    margin-top: 13px;
-    margin-bottom: 6px;
+.banniere-contenu {
+    max-width: 620px;
+}
+
+.badge-accueil {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #d4af3724;
+    color: #f4d675;
+    font-size: 10px;
     font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.banniere-accueil h2 {
+    color: #ffffff;
+    border: 0;
+    padding: 0;
+    margin: 14px 0 8px;
+    font-size: clamp(21px, 3vw, 30px);
+}
+
+.banniere-accueil p {
+    max-width: 500px;
+    color: #d4d9e8;
     font-size: 14px;
+    margin-bottom: 20px;
 }
 
-input,
-select,
-textarea {
-    width: 100%;
-    min-height: 44px;
-    padding: 11px;
-    border: 1px solid #555555;
-    border-radius: 6px;
-    background: #292929;
-    color: white;
-    font-size: 16px;
+.banniere-accueil button {
+    background: var(--or);
+    color: #171717;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-    outline: 2px solid var(--or);
-    border-color: var(--or);
+.banniere-icone {
+    font-size: clamp(55px, 9vw, 100px);
+    flex-shrink: 0;
+    filter: drop-shadow(0 8px 12px #0005);
 }
 
-form button {
-    width: 100%;
-    margin-top: 18px;
+.titre-section-accueil {
+    margin: 24px 0 12px;
 }
 
-#boutonScanner {
-    margin-top: 10px;
-    width: 100%;
-}
-
-#ajouterPanier {
-    margin-top: 12px;
-    width: 100%;
-    background: var(--vert);
-    color: white;
-}
-
-#encaisser {
-    width: 100%;
-    margin-top: 15px;
-    padding: 16px;
-    background: var(--vert);
-    color: white;
+.titre-section-accueil h3,
+.graphique-entete h3 {
+    margin: 0;
     font-size: 17px;
 }
 
-#arreterScanner {
-    margin-top: 10px;
-    background: var(--rouge);
-    color: white;
+#dateAccueil {
+    color: var(--secondaire);
+    font-size: 12px;
 }
 
-#videoScanner {
-    width: 100%;
-    max-width: 500px;
+.statistiques-pro {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 14px 0 28px;
+}
+
+.statistiques-pro .carte {
+    position: relative;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--bordure);
+    border-top: 3px solid var(--or);
+    border-radius: 12px;
+    background: linear-gradient(145deg, #222222, #191919);
+}
+
+.statistiques-pro .carte h3 {
+    margin: 10px 0;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.statistiques-pro .carte p {
+    margin: 0;
+    font-size: clamp(17px, 2vw, 24px);
+    overflow-wrap: anywhere;
+}
+
+.statistiques-pro .carte small {
     display: block;
-    margin: 12px auto;
-    background: #000;
-    border-radius: 8px;
+    margin-top: 8px;
+    color: var(--secondaire);
+    font-size: 11px;
 }
 
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    margin: 15px 0;
+.stat-icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #ffffff0c;
+    font-size: 20px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 480px;
+.carte-vente {
+    border-top-color: #29b878 !important;
+}
+
+.carte-depense {
+    border-top-color: #ef7777 !important;
+}
+
+.carte-benefice {
+    border-top-color: #d4af37 !important;
+}
+
+.carte-produits {
+    border-top-color: #5c9cff !important;
+}
+
+.carte-rupture {
+    border-top-color: #f04444 !important;
+}
+
+.carte-faible {
+    border-top-color: #e99b45 !important;
+}
+
+.raccourcis-accueil {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 14px 0 28px;
+}
+
+.raccourci {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    min-width: 0;
+    min-height: 125px;
+    padding: 16px;
+    border: 1px solid var(--bordure);
+    border-radius: 12px;
     background: var(--panneau);
+    color: white;
+    text-align: left;
+    transition: border-color 0.2s, transform 0.2s;
 }
 
-th,
-td {
-    padding: 11px 8px;
-    border-bottom: 1px solid var(--bordure);
-    text-align: left;
+.raccourci > span {
+    font-size: 25px;
+}
+
+.raccourci strong {
     font-size: 13px;
 }
 
-th {
-    color: var(--or);
-    background: #252525;
+.raccourci small {
+    color: #c5c5c5;
+    font-size: 11px;
+    font-weight: normal;
 }
 
-td button {
-    padding: 7px 9px;
-    margin: 2px;
+.raccourci-vert {
+    border-left: 4px solid #29b878;
 }
 
-#totalPanier {
-    color: var(--or);
-    font-size: 23px;
+.raccourci-bleu {
+    border-left: 4px solid #5c9cff;
 }
 
-#monnaie {
-    color: #7ee2a8;
-    font-size: 18px;
+.raccourci-orange {
+    border-left: 4px solid #e99b45;
 }
 
-#messageVente,
-#messageScanner,
-#messageParametres {
-    padding: 8px 0;
-    overflow-wrap: anywhere;
+.raccourci-violet {
+    border-left: 4px solid #a58bfa;
 }
 
-.produit-ligne,
-.depense-ligne,
-.alerte-stock {
-    background: var(--panneau);
-    padding: 12px;
-    margin: 8px 0;
+.raccourci-rouge {
+    border-left: 4px solid #ef7777;
+}
+
+.raccourci-cyan {
+    border-left: 4px solid #47c7d9;
+}
+
+.raccourci-or {
+    border-left: 4px solid var(--or);
+}
+
+.raccourci-gris {
+    border-left: 4px solid #a7a7a7;
+}
+
+.graphique-carte {
+    padding: 20px;
     border: 1px solid var(--bordure);
-    border-radius: 7px;
-    overflow-wrap: anywhere;
+    border-radius: 14px;
+    background: var(--panneau);
 }
 
-.alerte-stock {
-    border-left: 4px solid var(--rouge);
+.graphique-entete {
+    margin-bottom: 12px;
 }
 
-footer {
-    text-align: center;
-    color: var(--secondaire);
-    font-size: 12px;
-    border-top: 1px solid var(--bordure);
-    padding: 15px;
-    margin-top: 30px;
+.graphique-icone {
+    font-size: 24px;
 }
 
-@media (max-width: 480px) {
-    .entete {
-        align-items: flex-start;
-        flex-direction: column;
+@media (hover: hover) and (pointer: fine) {
+    .raccourci:hover {
+        transform: translateY(-2px);
+        border-color: var(--or);
     }
+}
 
-    .entete h1 {
-        font-size: 20px;
-    }
-
-    .menu button {
-        flex: 1 1 42%;
-        padding: 12px 5px;
-        font-size: 12px;
-    }
-
-    main {
-        padding: 10px;
-    }
-
-    .statistiques {
+@media (max-width: 760px) {
+    .statistiques-pro {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-}
-#messageScanner {
-    display: none;
-}
 
-#zoneScanner:not(.cache) #messageScanner {
-    display: block;
-}
-/* Masquer les messages du scanner lorsqu'il est fermé */
-#zoneScanner.cache #messageScanner {
-    display: none !important;
-}
-
-/* Afficher le message uniquement lorsque le scanner est ouvert */
-#zoneScanner:not(.cache) #messageScanner {
-    display: block;
-}
-
-/* =====================================
-   RAPPORTS PROFESSIONNELS - IMPRESSION A4
-   ===================================== */
-
-@page {
-    size: A4 portrait;
-    margin: 12mm;
-}
-
-@media print {
-    body {
-        background: #ffffff !important;
-        color: #000000 !important;
-        font-family: Arial, sans-serif;
-        font-size: 11px;
-        line-height: 1.4;
+    .raccourcis-accueil {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .entete,
-    .menu,
-    nav,
-    footer {
-        display: none !important;
+    .banniere-accueil {
+        padding: 20px;
     }
 
-    main {
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    #page-rapports {
-        display: block !important;
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: none !important;
-    }
-
-    #page-rapports h2,
-    #page-rapports h3 {
-        color: #000000 !important;
-        border-bottom: 1px solid #777777;
-        padding-bottom: 5px;
-        margin-top: 14px;
-        page-break-after: avoid;
-    }
-
-    #page-rapports .carte {
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #999999 !important;
-        break-inside: avoid;
-    }
-
-    #page-rapports .carte h3,
-    #page-rapports .carte p {
-        color: #000000 !important;
-    }
-
-    #page-rapports table {
-        width: 100% !important;
-        min-width: 0 !important;
-        border-collapse: collapse !important;
-        background: #ffffff !important;
-        color: #000000 !important;
-        font-size: 9px;
-    }
-
-    #page-rapports th,
-    #page-rapports td {
-        border: 1px solid #777777 !important;
-        color: #000000 !important;
-        background: #ffffff !important;
-        padding: 5px !important;
-        overflow-wrap: anywhere;
-    }
-
-    #page-rapports th {
-        font-weight: bold;
-    }
-
-    #page-rapports button,
-    #page-rapports form,
-    #page-rapports input,
-    #page-rapports select,
-    #page-rapports .no-print {
-        display: none !important;
-    }
-
-    #page-rapports .table-responsive {
-        overflow: visible !important;
-        width: 100% !important;
-    }
-
-    #page-rapports tr {
-        break-inside: avoid;
-    }
-
-    #page-rapports .cache {
-        display: none !important;
+    .accueil-titre h2 {
+        font-size: 23px;
     }
 }
-/* ======================================
-   RAPPORT COMMERCIAL PROFESSIONNEL A4
-   ====================================== */
 
-.enteteRapport {
-    text-align: center;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-bottom: 3px solid #d4af37;
-}
-
-.enteteRapport h1 {
-    color: #d4af37;
-    font-size: 25px;
-    margin-bottom: 5px;
-}
-
-.enteteRapport h2 {
-    margin-top: 20px;
-    color: #d4af37;
-}
-
-.piedRapport {
-    margin-top: 30px;
-    padding-top: 15px;
-    border-top: 1px solid #777;
-}
-
-.signaturesRapport {
-    display: flex;
-    justify-content: space-between;
-    gap: 30px;
-    margin-top: 35px;
-}
-
-.signaturesRapport > div {
-    flex: 1;
-    min-width: 0;
-}
-
-@page {
-    size: A4 portrait;
-    margin: 12mm;
-}
-
-@media print {
-    body {
-        background: white !important;
-        color: black !important;
-        font-family: Arial, sans-serif;
-        font-size: 10pt;
+@media (max-width: 360px) {
+    .statistiques-pro {
+        grid-template-columns: 1fr;
     }
 
-    .entete,
-    .menu,
-    nav,
-    footer,
-    #formFiltresRapports,
-    #imprimerRapport {
-        display: none !important;
+    .banniere-icone {
+        display: none;
     }
 
-    #page-rapports {
-        display: block !important;
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important;
-        color: black !important;
+    .raccourci {
+        padding: 12px;
     }
-
-    .enteteRapport {
-        display: block !important;
-        color: black !important;
-    }
-
-    .enteteRapport h1,
-    .enteteRapport h2 {
-        color: black !important;
-    }
-
-    .carte {
-        background: white !important;
-        color: black !important;
-        border: 1px solid #777 !important;
-        break-inside: avoid;
-    }
-
-    .carte h3,
-    .carte p {
-        color: black !important;
-    }
-
-    table {
-        width: 100% !important;
-        min-width: 0 !important;
-        border-collapse: collapse !important;
-        font-size: 9pt;
-    }
-
-    th,
-    td {
-        color: black !important;
-        background: white !important;
-        border: 1px solid #777 !important;
-        padding: 5px !important;
-    }
-
-    .table-responsive {
-        overflow: visible !important;
-    }
-
-    .signaturesRapport {
-        display: flex !important;
-        justify-content: space-between;
-        gap: 25px;
-        break-inside: avoid;
-    }
-
-    .piedRapport {
-        break-inside: avoid;
-    }
-
-    h2,
-    h3 {
-        break-after: avoid;
-    }
-}
-/* CONNEXION SAINT-AMOUR BAR PRO */
-#ecranConnexion {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-#ecranConnexion.cache {
+}ache {
     display: none !important;
 }
 
