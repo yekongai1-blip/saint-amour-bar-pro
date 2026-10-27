@@ -511,120 +511,112 @@ break;
             }
         }
     }
-function actualiserDateAccueil() {
-    const element = $("dateAccueil");
 
-    if (!element) return;
-
-    element.textContent = new Date().toLocaleDateString(
-        "fr-FR",
-        {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-        }
-    );
-}
     /* ==========================================
        TABLEAU DE BORD
        ========================================== */
 
     async function actualiserStatistiques() {
-       actualiserDateAccueil();
-       
-        if (!U || !U.estConnecte() || !U.aAcces("accueil")) return;
+    function actualiserDateAccueil() {
+    const element = $("dateAccueil");
+    if (!element) return;
 
-        try {
-            const [ventes, depenses, produits] = await Promise.all([
-                lireTous("ventes"),
-                lireTous("depenses"),
-                lireTous("produits")
-            ]);
+    element.textContent = new Date().toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+}
 
-            const aujourdHui = dateLocale(new Date());
+async function actualiserStatistiques() {
+    actualiserDateAccueil();
 
-            const ventesDuJour = (ventes || []).filter(vente => {
-                const statut = String(vente.statut || "").toLowerCase();
+    if (!U || !U.estConnecte() || !U.aAcces("accueil")) return;
 
-                if ([
-                    "annulée", "annulee", "annulé", "annule",
-                    "supprimée", "supprimee"
-                ].includes(statut)) {
-                    return false;
-                }
+    try {
+        const [ventes, depenses, produits] = await Promise.all([
+            lireTous("ventes"),
+            lireTous("depenses"),
+            lireTous("produits")
+        ]);
 
-                return dateLocale(vente.date || vente.dateCreation) === aujourdHui;
+        const aujourdHui = dateLocale(new Date());
+
+        const ventesDuJour = (ventes || []).filter(vente => {
+            const statut = String(vente.statut || "").toLowerCase();
+
+            if ([
+                "annulée", "annulee", "annulé", "annule",
+                "supprimée", "supprimee"
+            ].includes(statut)) {
+                return false;
+            }
+
+            return dateLocale(vente.date || vente.dateCreation) === aujourdHui;
+        });
+
+        const depensesDuJour = (depenses || []).filter(depense =>
+            dateLocale(depense.date || depense.dateCreation) === aujourdHui
+        );
+
+        const chiffreAffaires = ventesDuJour.reduce(
+            (total, vente) => total + (Number(vente.total) || 0),
+            0
+        );
+
+        const totalDepenses = depensesDuJour.reduce(
+            (total, depense) => total + (Number(depense.montant) || 0),
+            0
+        );
+
+        const produitsParId = new Map(
+            (produits || []).map(produit => [
+                String(produit.id),
+                produit
+            ])
+        );
+
+        let beneficeBrut = 0;
+
+        ventesDuJour.forEach(vente => {
+            const lignes = Array.isArray(vente.lignes) ? vente.lignes : [];
+
+            lignes.forEach(ligne => {
+                const produit = produitsParId.get(String(ligne.idProduit));
+                const prixVente = Number(ligne.prixUnitaire) || 0;
+                const prixAchat = produit ? Number(produit.prixAchat) || 0 : 0;
+                const quantite = Number(ligne.quantite) || 0;
+
+                beneficeBrut += (prixVente - prixAchat) * quantite;
             });
+        });
 
-            const depensesDuJour = (depenses || []).filter(depense =>
-                dateLocale(depense.date || depense.dateCreation) === aujourdHui
-            );
+        const listeProduits = produits || [];
 
-            const chiffreAffaires = ventesDuJour.reduce(
-                (total, vente) => total + (Number(vente.total) || 0),
-                0
-            );
+        const ruptures = listeProduits.filter(produit =>
+            (Number(produit.quantiteStock) || 0) <= 0
+        );
 
-            const totalDepenses = depensesDuJour.reduce(
-                (total, depense) => total + (Number(depense.montant) || 0),
-                0
-            );
+        const stocksFaibles = listeProduits.filter(produit => {
+            const quantite = Number(produit.quantiteStock) || 0;
+            const seuil = Number(produit.seuilAlerte) || 5;
 
-            const produitsParId = new Map(
-                (produits || []).map(produit => [
-                    String(produit.id),
-                    produit
-                ])
-            );
+            return quantite > 0 && quantite <= seuil;
+        });
 
-            let beneficeBrut = 0;
+        mettreAJour("statVentes", formaterFCFA(chiffreAffaires));
+        mettreAJour("statDepenses", formaterFCFA(totalDepenses));
+        mettreAJour("statBenefice", formaterFCFA(beneficeBrut));
+        mettreAJour("statProduits", listeProduits.length);
+        mettreAJour("statRuptures", ruptures.length);
+        mettreAJour("statStockFaible", stocksFaibles.length);
 
-            ventesDuJour.forEach(vente => {
-                const lignes = Array.isArray(vente.lignes)
-                    ? vente.lignes
-                    : [];
-
-                lignes.forEach(ligne => {
-                    const produit = produitsParId.get(
-                        String(ligne.idProduit)
-                    );
-
-                    const prixVente = Number(ligne.prixUnitaire) || 0;
-                    const prixAchat = produit
-                        ? Number(produit.prixAchat) || 0
-                        : 0;
-                    const quantite = Number(ligne.quantite) || 0;
-
-                    beneficeBrut += (prixVente - prixAchat) * quantite;
-                });
-            });
-
-            const listeProduits = produits || [];
-
-            const ruptures = listeProduits.filter(produit =>
-                (Number(produit.quantiteStock) || 0) <= 0
-            );
-
-            const stocksFaibles = listeProduits.filter(produit => {
-                const quantite = Number(produit.quantiteStock) || 0;
-                const seuil = Number(produit.seuilAlerte) || 5;
-
-                return quantite > 0 && quantite <= seuil;
-            });
-
-            mettreAJour("statVentes", formaterFCFA(chiffreAffaires));
-            mettreAJour("statDepenses", formaterFCFA(totalDepenses));
-            mettreAJour("statBenefice", formaterFCFA(beneficeBrut));
-            mettreAJour("statProduits", listeProduits.length);
-            mettreAJour("statRuptures", ruptures.length);
-            mettreAJour("statStockFaible", stocksFaibles.length);
-
-            afficherGraphiqueVentes(ventesDuJour);
-        } catch (erreur) {
-            console.error("Erreur du tableau de bord :", erreur);
-        }
+        afficherGraphiqueVentes(ventesDuJour);
+    } catch (erreur) {
+        console.error("Erreur du tableau de bord :", erreur);
     }
+}
 
     function afficherGraphiqueVentes(ventes) {
         const conteneur = $("graphiqueVentes");
@@ -645,134 +637,6 @@ function actualiserDateAccueil() {
                 }).replace(".", ""),
                 montant: 0
             });
-           }
-
-
-        (ventes || []).forEach(vente => {
-            const cle = dateLocale(vente.date || vente.dateCreation);
-            const jour = jours.find(element => element.cle === cle);
-
-            if (jour) {
-                jour.montant += Number(vente.total) || 0;
-            }
-        });
-
-        const maximum = Math.max(1, ...jours.map(jour => jour.montant));
-
-        conteneur.innerHTML = "";
-
-        const zone = document.createElement("div");
-
-        zone.style.cssText =
-            "display:flex;align-items:flex-end;justify-content:space-around;" +
-            "gap:8px;width:100%;padding:12px 4px;overflow:hidden";
-
-        jours.forEach(jour => {
-            const colonne = document.createElement("div");
-
-            colonne.style.cssText =
-                "flex:1;min-width:0;display:flex;flex-direction:column;" +
-                "align-items:center;justify-content:flex-end;height:190px;gap:7px";
-
-            colonne.title = jour.nom + " : " + formaterFCFA(jour.montant);
-
-            const montant = document.createElement("span");
-            montant.style.cssText =
-                "font-size:10px;text-align:center;overflow-wrap:anywhere";
-            montant.textContent = jour.montant.toLocaleString("fr-FR");
-
-            const barre = document.createElement("div");
-            barre.style.cssText =
-                "width:70%;max-width:42px;background:#d4af37;" +
-                "border-radius:5px 5px 0 0;min-height:2px";
-
-            barre.style.height = (
-                jour.montant > 0
-                    ? Math.max(4, jour.montant / maximum * 130)
-                    : 2
-            ) + "px";
-
-            const nom = document.createElement("span");
-            nom.style.cssText = "font-size:11px;text-align:center";
-            nom.textContent = jour.nom;
-
-            colonne.append(montant, barre, nom);
-            zone.appendChild(colonne);
-        });
-
-        conteneur.appendChild(zone);
-
-        const legende = document.createElement("p");
-        legende.style.cssText =
-            "text-align:center;font-size:12px;color:#bdbdbd;margin:0 0 8px";
-        legende.textContent =
-            "Chiffre d'affaires — 7 derniers jours";
-
-        conteneur.appendChild(legende);
-    }
-
-    /* ==========================================
-       DÉMARRAGE DE L'APPLICATION
-       ========================================== */
-
-    async function initialiserApplication() {
-        if (demarrageEnCours) return;
-
-        demarrageEnCours = true;
-
-        try {
-            if (typeof ouvrirBase !== "function") {
-                throw new Error("La fonction ouvrirBase() est introuvable.");
-            }
-
-            await ouvrirBase();
-
-            if (!U) {
-                throw new Error("Le module utilisateurs.js n'est pas chargé.");
-            }
-
-            initialiserAuthentification();
-            initialiserNavigation();
-
-            const boutonActualiser = $("actualiserTableauBord");
-
-            if (
-                boutonActualiser &&
-                !boutonActualiser.dataset.initialise
-            ) {
-                boutonActualiser.dataset.initialise = "oui";
-
-                boutonActualiser.addEventListener(
-                    "click",
-                    actualiserStatistiques
-                );
-            }
-
-            const sessionValide = await U.restaurerSession();
-
-            if (sessionValide) {
-                afficherApplication();
-            } else {
-                await afficherEcranConnexion();
-            }
-        } catch (erreur) {
-            console.error("Erreur d'initialisation :", erreur);
-
-            await afficherEcranConnexion();
-        } finally {
-            demarrageEnCours = false;
         }
 
-        console.log("SAINT-AMOUR BAR PRO : initialisation terminée.");
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener(
-            "DOMContentLoaded",
-            initialiserApplication,
-            { once: true }
-        );
-    } else {
-        initialiserApplication();
-    }
-})();
+        (ventes || []).forEach(vente =>
