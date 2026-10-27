@@ -227,6 +227,99 @@
     <div class="titre-section-accueil">
         <h3>Accès rapide</h3>
         <p>Choisissez un module pour continuer.</p>
+<!-- ACCUEIL PROFESSIONNEL -->
+<section class="page accueil-pro" id="page-accueil">
+
+    <div class="accueil-titre">
+        <div>
+            <span class="surtitre">ESPACE DE GESTION</span>
+            <h2>Tableau de bord</h2>
+            <p>Suivez l'activité de votre bar en un coup d'œil.</p>
+        </div>
+
+        <button type="button" id="actualiserTableauBord">
+            ↻ Actualiser
+        </button>
+    </div>
+
+    <!-- BANNIÈRE DE BIENVENUE -->
+    <div class="banniere-accueil">
+        <div class="banniere-contenu">
+            <span class="badge-accueil">SAINT-AMOUR BAR PRO</span>
+
+            <h2>Bienvenue dans votre espace de gestion !</h2>
+
+            <p>
+                Gérez vos ventes, contrôlez votre stock
+                et suivez vos résultats au même endroit.
+            </p>
+
+            <button type="button" data-page="ventes">
+                + Nouvelle vente
+            </button>
+        </div>
+
+        <div class="banniere-icone" aria-hidden="true">
+            🍹
+        </div>
+    </div>
+
+    <!-- STATISTIQUES -->
+    <div class="titre-section-accueil">
+        <h3>Votre activité aujourd'hui</h3>
+        <span id="dateAccueil"></span>
+    </div>
+
+    <div class="statistiques statistiques-pro">
+
+        <article class="carte carte-vente">
+            <div class="stat-icone">💰</div>
+            <h3>Ventes du jour</h3>
+            <p id="statVentes">0 FCFA</p>
+            <small>Chiffre d'affaires</small>
+        </article>
+
+        <article class="carte carte-depense">
+            <div class="stat-icone">💸</div>
+            <h3>Dépenses du jour</h3>
+            <p id="statDepenses">0 FCFA</p>
+            <small>Dépenses enregistrées</small>
+        </article>
+
+        <article class="carte carte-benefice">
+            <div class="stat-icone">📈</div>
+            <h3>Bénéfice brut estimé</h3>
+            <p id="statBenefice">0 FCFA</p>
+            <small>Avant autres charges</small>
+        </article>
+
+        <article class="carte carte-produits">
+            <div class="stat-icone">📦</div>
+            <h3>Produits enregistrés</h3>
+            <p id="statProduits">0</p>
+            <small>Références produits</small>
+        </article>
+
+        <article class="carte carte-rupture">
+            <div class="stat-icone">⚠️</div>
+            <h3>Ruptures de stock</h3>
+            <p id="statRuptures">0</p>
+            <small>Produits à réapprovisionner</small>
+        </article>
+
+        <article class="carte carte-faible">
+            <div class="stat-icone">📉</div>
+            <h3>Stocks faibles</h3>
+            <p id="statStockFaible">0</p>
+            <small>Surveillez ces produits</small>
+        </article>
+
+    </div>
+
+    <!-- RACCOURCIS -->
+    <div class="titre-section-accueil">
+        <h3>Accès rapide</h3>
+        <p>Choisissez un module pour continuer.</p>
     </div>
 
     <div class="raccourcis-accueil">
