@@ -608,7 +608,56 @@ if ("serviceWorker" in navigator) {
     });
 }
 </script>
+<script>
+(function () {
+    function afficherErreur(message) {
+        let panneau = document.getElementById("diagnosticErreur");
 
+        if (!panneau) {
+            panneau = document.createElement("div");
+            panneau.id = "diagnosticErreur";
+
+            panneau.style.cssText =
+                "position:fixed;inset:0;z-index:999999;" +
+                "background:#fff;color:#b00020;padding:20px;" +
+                "overflow:auto;font-size:15px;white-space:pre-wrap;";
+
+            document.body.appendChild(panneau);
+        }
+
+        panneau.textContent =
+            "ERREUR DE L'APPLICATION\n\n" + message;
+    }
+
+    window.addEventListener("error", function (e) {
+        afficherErreur(
+            (e.message || "Erreur JavaScript") +
+            "\nFichier : " + (e.filename || "inconnu") +
+            "\nLigne : " + (e.lineno || "?")
+        );
+    });
+
+    window.addEventListener("unhandledrejection", function (e) {
+        afficherErreur(
+            "Erreur asynchrone : " +
+            (e.reason?.stack || e.reason?.message || String(e.reason))
+        );
+    });
+
+    window.addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+            if (
+                document.body.innerText.trim() === "" ||
+                document.body.children.length === 0
+            ) {
+                afficherErreur(
+                    "La page est vide. Vérifie index.html et les fichiers JavaScript."
+                );
+            }
+        }, 1500);
+    });
+})();
+</script>
 </body>
       </html>
       
