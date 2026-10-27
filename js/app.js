@@ -294,76 +294,19 @@
                             $("motDePasseConnexion").value;
 
                         /*
-                         * Utilise la fonction disponible dans ton module.
-                         * La version locale expose connecter().
-                         */
-                        let utilisateur;
-
-                        if (typeof U.connecterAvecSupabase !== "function") {
+ * Connexion du compte Directeur avec Supabase
+ */
+if (!U || typeof U.connecterAvecSupabase !== "function") {
     throw new Error(
-        "Le module Supabase Auth n'est pas chargé."
+        "La fonction connecterAvecSupabase est introuvable. " +
+        "Vérifie js/utilisateurs.js."
     );
 }
 
 const utilisateur = await U.connecterAvecSupabase(
     identifiant,
     motDePasse
-); else if (
-                            typeof U.connecterAvecSupabase === "function"
-                        ) {
-                            utilisateur = await U.connecterAvecSupabase(
-                                identifiant,
-                                motDePasse
-                            );
-                        } else {
-                            throw new Error(
-                                "Aucune fonction de connexion compatible dans utilisateurs.js."
-                            );
-                        }
-
-                        formConnexion.reset();
-
-                        afficherApplication(utilisateur);
-                    } catch (erreur) {
-                        afficherErreur(
-                            erreur.message ||
-                            "Identifiant ou mot de passe incorrect."
-                        );
-                    } finally {
-                        if (bouton) bouton.disabled = false;
-                    }
-                }
-            );
-        }
-
-        if (boutonDeconnexion &&
-            !boutonDeconnexion.dataset.initialise) {
-
-            boutonDeconnexion.dataset.initialise = "oui";
-
-            boutonDeconnexion.addEventListener(
-                "click",
-                async () => {
-                    if (!confirm("Voulez-vous vraiment vous déconnecter ?")) {
-                        return;
-                    }
-
-                    try {
-                        if (U &&
-                            typeof U.deconnecter === "function") {
-                            await U.deconnecter();
-                        }
-                    } catch (erreur) {
-                        console.error(
-                            "Erreur de déconnexion :",
-                            erreur
-                        );
-                    }
-
-                    await afficherEcranConnexion();
-                }
-            );
-        }
+);
     }
 
     /* ==========================================
