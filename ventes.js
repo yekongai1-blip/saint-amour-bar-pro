@@ -695,7 +695,7 @@ function imprimerDernierTicket() {
         </head>
 
         <body>
-            <h2>CHATGPT BAR PRO</h2>
+            <h2>SAINT-AMOUR BAR PRO</h2>
             <p>Ticket de caisse</p>
 
             <div class="separateur"></div>
