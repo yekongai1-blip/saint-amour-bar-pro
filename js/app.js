@@ -2,28 +2,27 @@
 
 /* ==========================================
    SAINT-AMOUR BAR PRO
-   Navigation, connexion et tableau de bord
+   Navigation, authentification et tableau de bord
    ========================================== */
 
 (function () {
+    const $ = id => document.getElementById(id);
     const U = window.BarUtilisateurs;
 
-    const $ = id => document.getElementById(id);
-
     const pagesBar = [
-    "accueil",
-    "ventes",
-    "produits",
-    "stock",
-    "caisse",
-    "depenses",
-    "dettes",
-    "rapports",
-    "parametres",
-    "sauvegarde",
-    "utilisateurs",
-    "synchronisation"
-];
+        "accueil",
+        "ventes",
+        "produits",
+        "stock",
+        "caisse",
+        "depenses",
+        "dettes",
+        "rapports",
+        "parametres",
+        "sauvegarde",
+        "utilisateurs",
+        "synchronisation"
+    ];
 
     const nomsRoles = {
         directeur: "Directeur",
@@ -34,8 +33,13 @@
     let navigationInitialisee = false;
     let demarrageEnCours = false;
 
+    /* ==========================================
+       OUTILS
+       ========================================== */
+
     function formaterFCFA(montant) {
-        return (Number(montant) || 0).toLocaleString("fr-FR") + " FCFA";
+        return (Number(montant) || 0).toLocaleString("fr-FR")
+            + " FCFA";
     }
 
     function dateLocale(valeur) {
@@ -54,14 +58,23 @@
 
     function mettreAJour(id, valeur) {
         const element = $(id);
+        if (element) element.textContent = valeur;
+    }
 
-        if (element) {
-            element.textContent = valeur;
+    function afficherErreur(message) {
+        console.error(message);
+
+        const zone = $("messageConnexion");
+
+        if (zone) {
+            zone.textContent = message instanceof Error
+                ? message.message
+                : String(message);
         }
     }
 
     /* ==========================================
-       AFFICHAGE DES ÉCRANS
+       AFFICHAGE DE L'APPLICATION
        ========================================== */
 
     function afficherApplication() {
@@ -78,7 +91,6 @@
         if (pied) pied.classList.remove("cache");
 
         afficherInformationsUtilisateur();
-
         afficherPage("accueil");
     }
 
@@ -88,26 +100,25 @@
         const menu = document.querySelector(".menu");
         const principal = document.querySelector("main");
         const pied = document.querySelector("footer");
-        const infos = $("informationsUtilisateur");
 
         if (connexion) connexion.classList.remove("cache");
         if (entete) entete.classList.add("cache");
         if (menu) menu.classList.add("cache");
         if (principal) principal.classList.add("cache");
         if (pied) pied.classList.add("cache");
+
+        const infos = $("informationsUtilisateur");
         if (infos) infos.classList.add("cache");
 
         const config = $("configurationDirecteur");
-        const formulaire = $("formulaireConnexion");
+        const formulaire = $("formConnexion");
         const message = $("messageConnexion");
 
         if (!U) {
             if (message) {
                 message.textContent =
-                    "Erreur : utilisateurs.js n'est pas chargé.";
+                    "Erreur : le module utilisateurs.js est indisponible.";
             }
-
-            console.error("BarUtilisateurs indisponible.");
             return;
         }
 
@@ -134,15 +145,15 @@
 
             if (message) {
                 message.textContent = directeurExiste
-                    ? "Connectez-vous avec votre identifiant et votre mot de passe."
+                    ? "Connectez-vous avec vos identifiants."
                     : "Créez votre premier compte Directeur.";
             }
         } catch (erreur) {
-            console.error("Erreur de connexion :", erreur);
+            console.error(erreur);
 
             if (message) {
                 message.textContent =
-                    "Impossible de lire les utilisateurs. Vérifiez la base de données.";
+                    "Impossible de lire les utilisateurs. Vérifiez la base locale.";
             }
         }
     }
@@ -150,17 +161,20 @@
     window.afficherEcranConnexion = afficherEcranConnexion;
 
     function afficherInformationsUtilisateur() {
+        if (!U ||
+            typeof U.obtenirUtilisateurConnecte !== "function") {
+            return;
+        }
+
         const infos = $("informationsUtilisateur");
         const nom = $("nomUtilisateurConnecte");
         const role = $("roleUtilisateurConnecte");
 
-        if (!U || typeof U.obtenirUtilisateurConnecte !== "function") {
-            return;
-        }
-
         const utilisateur = U.obtenirUtilisateurConnecte();
 
-        if (infos) infos.classList.remove("cache");
+        if (infos) {
+            infos.classList.toggle("cache", !utilisateur);
+        }
 
         if (nom) {
             nom.textContent = utilisateur
@@ -176,7 +190,7 @@
     }
 
     /* ==========================================
-       AUTHENTIFICATION
+       CRÉATION DU DIRECTEUR ET CONNEXION
        ========================================== */
 
     function initialiserAuthentification() {
@@ -184,127 +198,167 @@
         const formConnexion = $("formConnexion");
         const boutonDeconnexion = $("boutonDeconnexion");
 
-        if (formDirecteur && !formDirecteur.dataset.initialise) {
+        if (formDirecteur &&
+            !formDirecteur.dataset.initialise) {
+
             formDirecteur.dataset.initialise = "oui";
 
-            formDirecteur.addEventListener("submit", async event => {
-                event.preventDefault();
+            formDirecteur.addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
 
-                const message = $("messageConnexion");
-                const bouton = formDirecteur.querySelector(
-                    'button[type="submit"]'
-                );
-
-                const nom = $("nomDirecteur")?.value.trim();
-                const identifiant = $("identifiantDirecteur")?.value.trim();
-                const motDePasse = $("motDePasseDirecteur")?.value;
-
-                try {
-                    if (bouton) bouton.disabled = true;
-
-                    await ouvrirBase();
-                  if (typeof window.initialiserSupabase === "function") {
-    const connexionSupabase = window.initialiserSupabase();
-
-    if (connexionSupabase) {
-        console.log("SAINT-AMOUR BAR PRO : Supabase prêt.");
-    } else {
-        console.log("Mode local disponible ; Supabase non initialisé.");
-    }
-                  }
-
-                    await U.initialiserPremierDirecteur(
-                        nom,
-                        identifiant,
-                        motDePasse
+                    const bouton = formDirecteur.querySelector(
+                        'button[type="submit"]'
                     );
 
-                    if (message) {
-                        message.textContent =
-                            "Compte créé. Connectez-vous maintenant.";
+                    try {
+                        if (!U) {
+                            throw new Error(
+                                "Le module utilisateurs.js est indisponible."
+                            );
+                        }
+
+                        if (bouton) bouton.disabled = true;
+
+                        await ouvrirBase();
+
+                        const nom = $("nomDirecteur").value.trim();
+                        const identifiant =
+                            $("identifiantDirecteur").value.trim();
+                        const motDePasse =
+                            $("motDePasseDirecteur").value;
+
+                        await U.initialiserPremierDirecteur(
+                            nom,
+                            identifiant,
+                            motDePasse
+                        );
+
+                        formDirecteur.reset();
+
+                        if ($("identifiantConnexion")) {
+                            $("identifiantConnexion").value = identifiant;
+                        }
+
+                        if ($("configurationDirecteur")) {
+                            $("configurationDirecteur")
+                                .classList.add("cache");
+                        }
+
+                        if (formConnexion) {
+                            formConnexion.classList.remove("cache");
+                        }
+
+                        mettreAJour(
+                            "messageConnexion",
+                            "Compte Directeur créé. Connectez-vous maintenant."
+                        );
+                    } catch (erreur) {
+                        afficherErreur(erreur);
+                    } finally {
+                        if (bouton) bouton.disabled = false;
                     }
-
-                    const champIdentifiant = $("identifiantConnexion");
-                    const config = $("configurationDirecteur");
-                    const formulaire = $("formulaireConnexion");
-
-                    if (config) config.classList.add("cache");
-                    if (formulaire) formulaire.classList.remove("cache");
-
-                    if (champIdentifiant) {
-                        champIdentifiant.value = identifiant || "";
-                        champIdentifiant.focus();
-                    }
-
-                    formDirecteur.reset();
-                } catch (erreur) {
-                    console.error(erreur);
-
-                    if (message) {
-                        message.textContent =
-                            erreur.message || "Création du compte impossible.";
-                    }
-                } finally {
-                    if (bouton) bouton.disabled = false;
                 }
-            });
+            );
         }
 
-        if (formConnexion && !formConnexion.dataset.initialise) {
+        if (formConnexion &&
+            !formConnexion.dataset.initialise) {
+
             formConnexion.dataset.initialise = "oui";
 
-            formConnexion.addEventListener("submit", async event => {
-                event.preventDefault();
+            formConnexion.addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
 
-                const message = $("messageConnexion");
-                const bouton = formConnexion.querySelector(
-                    'button[type="submit"]'
-                );
+                    const bouton = formConnexion.querySelector(
+                        'button[type="submit"]'
+                    );
 
-                try {
-                    if (bouton) bouton.disabled = true;
+                    try {
+                        if (!U) {
+                            throw new Error(
+                                "Le module utilisateurs.js est indisponible."
+                            );
+                        }
 
-                    await ouvrirBase();
+                        if (bouton) bouton.disabled = true;
 
-                    const identifiant = $("identifiantConnexion")?.value;
-                    const motDePasse = $("motDePasseConnexion")?.value;
+                        await ouvrirBase();
 
-                    const utilisateur = await U.connecterAvecSupabase(
-    identifiant,
-    motDePasse
-);
+                        const identifiant =
+                            $("identifiantConnexion").value.trim();
+                        const motDePasse =
+                            $("motDePasseConnexion").value;
 
-formConnexion.reset();
+                        /*
+                         * Utilise la fonction disponible dans ton module.
+                         * La version locale expose connecter().
+                         */
+                        let utilisateur;
 
-afficherApplication(utilisateur);
-                } catch (erreur) {
-                    console.error(erreur);
+                        if (typeof U.connecter === "function") {
+                            utilisateur = await U.connecter(
+                                identifiant,
+                                motDePasse
+                            );
+                        } else if (
+                            typeof U.connecterAvecSupabase === "function"
+                        ) {
+                            utilisateur = await U.connecterAvecSupabase(
+                                identifiant,
+                                motDePasse
+                            );
+                        } else {
+                            throw new Error(
+                                "Aucune fonction de connexion compatible dans utilisateurs.js."
+                            );
+                        }
 
-                    if (message) {
-                        message.textContent =
-                            erreur.message || "Identifiant ou mot de passe incorrect.";
+                        formConnexion.reset();
+
+                        afficherApplication(utilisateur);
+                    } catch (erreur) {
+                        afficherErreur(
+                            erreur.message ||
+                            "Identifiant ou mot de passe incorrect."
+                        );
+                    } finally {
+                        if (bouton) bouton.disabled = false;
                     }
-                } finally {
-                    if (bouton) bouton.disabled = false;
                 }
-            });
+            );
         }
 
-        if (boutonDeconnexion && !boutonDeconnexion.dataset.initialise) {
+        if (boutonDeconnexion &&
+            !boutonDeconnexion.dataset.initialise) {
+
             boutonDeconnexion.dataset.initialise = "oui";
 
-            boutonDeconnexion.addEventListener("click", () => {
-                if (!confirm("Voulez-vous vraiment vous déconnecter ?")) {
-                    return;
-                }
+            boutonDeconnexion.addEventListener(
+                "click",
+                async () => {
+                    if (!confirm("Voulez-vous vraiment vous déconnecter ?")) {
+                        return;
+                    }
 
-                U.deconnecter()
-    .then(() => afficherEcranConnexion())
-    .catch(erreur => {
-        console.error("Erreur de déconnexion :", erreur);
-        afficherEcranConnexion();
-    });
-            });
+                    try {
+                        if (U &&
+                            typeof U.deconnecter === "function") {
+                            await U.deconnecter();
+                        }
+                    } catch (erreur) {
+                        console.error(
+                            "Erreur de déconnexion :",
+                            erreur
+                        );
+                    }
+
+                    await afficherEcranConnexion();
+                }
+            );
         }
     }
 
@@ -318,14 +372,17 @@ afficherApplication(utilisateur);
             return;
         }
 
-        if (!pagesBar.includes(nomPage) || !U.aAcces(nomPage)) {
+        if (!pagesBar.includes(nomPage) ||
+            !U.aAcces(nomPage)) {
             nomPage = "accueil";
         }
 
         const page = $("page-" + nomPage);
 
         if (!page) {
-            console.error("Section introuvable : page-" + nomPage);
+            console.error(
+                "Section introuvable : page-" + nomPage
+            );
             return;
         }
 
@@ -357,11 +414,9 @@ afficherApplication(utilisateur);
         navigationInitialisee = true;
 
         document.addEventListener("click", event => {
-            const element = event.target;
+            if (!(event.target instanceof Element)) return;
 
-            if (!(element instanceof Element)) return;
-
-            const bouton = element.closest(
+            const bouton = event.target.closest(
                 "button[data-page], button[data-page-target], " +
                 "button[data-page-btn], button[data-section]"
             );
@@ -397,7 +452,9 @@ afficherApplication(utilisateur);
        ========================================== */
 
     async function actualiserPage(nomPage) {
-        if (!U || !U.estConnecte() || !U.aAcces(nomPage)) {
+        if (!U ||
+            !U.estConnecte() ||
+            !U.aAcces(nomPage)) {
             return;
         }
 
@@ -458,57 +515,45 @@ afficherApplication(utilisateur);
                         await window.afficherParametres();
                     }
                     break;
-                case "synchronisation":
-if (
-window.BarSynchronisation &&
-typeof window.BarSynchronisation
-.afficherEtatSynchronisation === "function"
-) {
-await window.BarSynchronisation
-.afficherEtatSynchronisation("contenuPrincipal");
-} else {
-$("contenuPrincipal").innerHTML =
-"<p>Le module de synchronisation n'est pas chargé.</p>";
-}
-break;
 
                 case "sauvegarde":
                     if (typeof window.afficherPanneauSauvegardeBar === "function") {
-                        window.afficherPanneauSauvegardeBar(
-                            $("page-sauvegarde")
+                        await window.afficherPanneauSauvegardeBar(
+                            $("panneauSauvegarde")
                         );
                     }
                     break;
-case "synchronisation":
-if (
-window.BarSynchronisation &&
-typeof window.BarSynchronisation
-.afficherEtatSynchronisation === "function"
-) {
-await window.BarSynchronisation
-.afficherEtatSynchronisation("contenuPrincipal");
-} else {
-$("contenuPrincipal").innerHTML =
-"<p>Le module de synchronisation n'est pas chargé.</p>";
-}
-break;
+
                 case "utilisateurs":
-                    if (typeof U.afficherGestionUtilisateurs === "function") {
+                    if (U &&
+                        typeof U.afficherGestionUtilisateurs === "function") {
                         await U.afficherGestionUtilisateurs(
                             $("contenuUtilisateurs")
                         );
                     }
                     break;
+
+                case "synchronisation":
+                    if (
+                        window.BarSynchronisation &&
+                        typeof window.BarSynchronisation
+                            .afficherEtatSynchronisation === "function"
+                    ) {
+                        await window.BarSynchronisation
+                            .afficherEtatSynchronisation("contenuPrincipal");
+                    } else if ($("contenuPrincipal")) {
+                        $("contenuPrincipal").textContent =
+                            "Le module de synchronisation n'est pas disponible.";
+                    }
+                    break;
             }
         } catch (erreur) {
-            console.error("Erreur sur la page " + nomPage + " :", erreur);
+            console.error(
+                "Erreur sur la page " + nomPage + " :",
+                erreur
+            );
 
-            const message = $("messageParametres");
-
-            if (message) {
-                message.textContent =
-                    "Erreur : " + (erreur.message || String(erreur));
-            }
+            afficherErreur(erreur);
         }
     }
 
@@ -516,194 +561,188 @@ break;
        TABLEAU DE BORD
        ========================================== */
 
-    async function actualiserStatistiques() {
     function actualiserDateAccueil() {
-    const element = $("dateAccueil");
-    if (!element) return;
+        const element = $("dateAccueil");
+        if (!element) return;
 
-    element.textContent = new Date().toLocaleDateString("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-    });
-}
-
-async function actualiserStatistiques() {
-    actualiserDateAccueil();
-
-    if (!U || !U.estConnecte() || !U.aAcces("accueil")) return;
-
-    try {
-        const [ventes, depenses, produits] = await Promise.all([
-            lireTous("ventes"),
-            lireTous("depenses"),
-            lireTous("produits")
-        ]);
-
-        const aujourdHui = dateLocale(new Date());
-
-        const ventesDuJour = (ventes || []).filter(vente => {
-            const statut = String(vente.statut || "").toLowerCase();
-
-            if ([
-                "annulée", "annulee", "annulé", "annule",
-                "supprimée", "supprimee"
-            ].includes(statut)) {
-                return false;
+        element.textContent = new Date().toLocaleDateString(
+            "fr-FR",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
             }
-
-            return dateLocale(vente.date || vente.dateCreation) === aujourdHui;
-        });
-
-        const depensesDuJour = (depenses || []).filter(depense =>
-            dateLocale(depense.date || depense.dateCreation) === aujourdHui
         );
-
-        const chiffreAffaires = ventesDuJour.reduce(
-            (total, vente) => total + (Number(vente.total) || 0),
-            0
-        );
-
-        const totalDepenses = depensesDuJour.reduce(
-            (total, depense) => total + (Number(depense.montant) || 0),
-            0
-        );
-
-        const produitsParId = new Map(
-            (produits || []).map(produit => [
-                String(produit.id),
-                produit
-            ])
-        );
-
-        let beneficeBrut = 0;
-
-        ventesDuJour.forEach(vente => {
-            const lignes = Array.isArray(vente.lignes) ? vente.lignes : [];
-
-            lignes.forEach(ligne => {
-                const produit = produitsParId.get(String(ligne.idProduit));
-                const prixVente = Number(ligne.prixUnitaire) || 0;
-                const prixAchat = produit ? Number(produit.prixAchat) || 0 : 0;
-                const quantite = Number(ligne.quantite) || 0;
-
-                beneficeBrut += (prixVente - prixAchat) * quantite;
-            });
-        });
-
-        const listeProduits = produits || [];
-
-        const ruptures = listeProduits.filter(produit =>
-            (Number(produit.quantiteStock) || 0) <= 0
-        );
-
-        const stocksFaibles = listeProduits.filter(produit => {
-            const quantite = Number(produit.quantiteStock) || 0;
-            const seuil = Number(produit.seuilAlerte) || 5;
-
-            return quantite > 0 && quantite <= seuil;
-        });
-
-        mettreAJour("statVentes", formaterFCFA(chiffreAffaires));
-        mettreAJour("statDepenses", formaterFCFA(totalDepenses));
-        mettreAJour("statBenefice", formaterFCFA(beneficeBrut));
-        mettreAJour("statProduits", listeProduits.length);
-        mettreAJour("statRuptures", ruptures.length);
-        mettreAJour("statStockFaible", stocksFaibles.length);
-
-        afficherGraphiqueVentes(ventesDuJour);
-    } catch (erreur) {
-        console.error("Erreur du tableau de bord :", erreur);
     }
-}
 
-    function afficherGraphiqueVentes(ventes) {
-        const conteneur = $("graphiqueVentes");
+    async function actualiserStatistiques() {
+        actualiserDateAccueil();
 
-        if (!conteneur) return;
-
-        const jours = [];
-
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setHours(12, 0, 0, 0);
-            date.setDate(date.getDate() - i);
-
-            jours.push({
-                cle: dateLocale(date),
-                nom: date.toLocaleDateString("fr-FR", {
-                    weekday: "short"
-                }).replace(".", ""),
-                montant: 0
-            });
+        if (!U ||
+            !U.estConnecte() ||
+            !U.aAcces("accueil")) {
+            return;
         }
 
-        (ventes || []).forEach(vente => {
-            const cle = dateLocale(vente.date || vente.dateCreation);
-            const jour = jours.find(element => element.cle === cle);
+        try {
+            const [ventes, depenses, produits] = await Promise.all([
+                lireTous("ventes"),
+                lireTous("depenses"),
+                lireTous("produits")
+            ]);
 
-            if (jour) {
-                jour.montant += Number(vente.total) || 0;
-            }
-        });
+            const aujourdHui = dateLocale(new Date());
 
-        const maximum = Math.max(1, ...jours.map(jour => jour.montant));
+            const ventesDuJour = (ventes || []).filter(vente => {
+                const statut = String(
+                    vente.statut || ""
+                ).toLowerCase();
 
-        conteneur.innerHTML = "";
+                if ([
+                    "annulée", "annulee", "annulé", "annule",
+                    "supprimée", "supprimee"
+                ].includes(statut)) {
+                    return false;
+                }
 
-        const zone = document.createElement("div");
+                return dateLocale(
+                    vente.date || vente.dateCreation
+                ) === aujourdHui;
+            });
 
-        zone.style.cssText =
-            "display:flex;align-items:flex-end;justify-content:space-around;" +
-            "gap:8px;width:100%;padding:12px 4px;overflow:hidden";
+            const depensesDuJour = (depenses || []).filter(depense =>
+                dateLocale(
+                    depense.date || depense.dateCreation
+                ) === aujourdHui
+            );
 
-        jours.forEach(jour => {
-            const colonne = document.createElement("div");
+            const chiffreAffaires = ventesDuJour.reduce(
+                (total, vente) =>
+                    total + (Number(vente.total) || 0),
+                0
+            );
 
-            colonne.style.cssText =
-                "flex:1;min-width:0;display:flex;flex-direction:column;" +
-                "align-items:center;justify-content:flex-end;height:190px;gap:7px";
+            const totalDepenses = depensesDuJour.reduce(
+                (total, depense) =>
+                    total + (Number(depense.montant) || 0),
+                0
+            );
 
-            colonne.title = jour.nom + " : " + formaterFCFA(jour.montant);
+            const produitsParId = new Map(
+                (produits || []).map(produit => [
+                    String(produit.id),
+                    produit
+                ])
+            );
 
-            const montant = document.createElement("span");
-            montant.style.cssText =
-                "font-size:10px;text-align:center;overflow-wrap:anywhere";
-            montant.textContent = jour.montant.toLocaleString("fr-FR");
+            let beneficeBrut = 0;
 
-            const barre = document.createElement("div");
-            barre.style.cssText =
-                "width:70%;max-width:42px;background:#d4af37;" +
-                "border-radius:5px 5px 0 0;min-height:2px";
+            ventesDuJour.forEach(vente => {
+                const lignes = Array.isArray(vente.lignes)
+                    ? vente.lignes
+                    : [];
 
-            barre.style.height = (
-                jour.montant > 0
-                    ? Math.max(4, jour.montant / maximum * 130)
-                    : 2
-            ) + "px";
+                lignes.forEach(ligne => {
+                    const produit = produitsParId.get(
+                        String(ligne.idProduit)
+                    );
 
-            const nom = document.createElement("span");
-            nom.style.cssText = "font-size:11px;text-align:center";
-            nom.textContent = jour.nom;
+                    const prixVente =
+                        Number(ligne.prixUnitaire) || 0;
 
-            colonne.append(montant, barre, nom);
-            zone.appendChild(colonne);
-        });
+                    const prixAchat = produit
+                        ? Number(produit.prixAchat) || 0
+                        : 0;
 
-        conteneur.appendChild(zone);
+                    const quantite =
+                        Number(ligne.quantite) || 0;
 
-        const legende = document.createElement("p");
-        legende.style.cssText =
-            "text-align:center;font-size:12px;color:#bdbdbd;margin:0 0 8px";
-        legende.textContent =
-            "Chiffre d'affaires — 7 derniers jours";
+                    beneficeBrut +=
+                        (prixVente - prixAchat) * quantite;
+                });
+            });
 
-        conteneur.appendChild(legende);
+            const listeProduits = produits || [];
+
+            const ruptures = listeProduits.filter(produit =>
+                (Number(produit.quantiteStock) || 0) <= 0
+            );
+
+            const stocksFaibles = listeProduits.filter(produit => {
+                const quantite =
+                    Number(produit.quantiteStock) || 0;
+
+                const seuil =
+                    Number(produit.seuilAlerte) || 5;
+
+                return quantite > 0 && quantite <= seuil;
+            });
+
+            mettreAJour(
+                "statVentes",
+                formaterFCFA(chiffreAffaires)
+            );
+
+            mettreAJour(
+                "statDepenses",
+                formaterFCFA(totalDepenses)
+            );
+
+            mettreAJour(
+                "statBenefice",
+                formaterFCFA(beneficeBrut)
+            );
+
+            mettreAJour(
+                "statProduits",
+                listeProduits.length
+            );
+
+            mettreAJour(
+                "statRuptures",
+                ruptures.length
+            );
+
+            mettreAJour(
+                "statStockFaible",
+                stocksFaibles.length
+            );
+
+            afficherGraphiqueVentes(ventesDuJour);
+
+        } catch (erreur) {
+            console.error(
+                "Erreur du tableau de bord :",
+                erreur
+            );
+        }
+    }
+
+    /* Graphique simplifié : répartition des ventes du jour. */
+    function afficherGraphiqueVentes(ventes) {
+        const zone = $("graphiqueVentes");
+        if (!zone) return;
+
+        const liste = Array.isArray(ventes) ? ventes : [];
+
+        if (liste.length === 0) {
+            zone.textContent = "Aucune vente enregistrée aujourd'hui.";
+            return;
+        }
+
+        const total = liste.reduce(
+            (somme, vente) => somme + (Number(vente.total) || 0),
+            0
+        );
+
+        zone.textContent =
+            liste.length + " vente(s) aujourd'hui — " +
+            formaterFCFA(total);
     }
 
     /* ==========================================
-       DÉMARRAGE DE L'APPLICATION
+       DÉMARRAGE
        ========================================== */
 
     async function initialiserApplication() {
@@ -713,13 +752,17 @@ async function actualiserStatistiques() {
 
         try {
             if (typeof ouvrirBase !== "function") {
-                throw new Error("La fonction ouvrirBase() est introuvable.");
+                throw new Error(
+                    "La fonction ouvrirBase() est introuvable dans database.js."
+                );
             }
 
             await ouvrirBase();
 
             if (!U) {
-                throw new Error("Le module utilisateurs.js n'est pas chargé.");
+                throw new Error(
+                    "Le module utilisateurs.js n'est pas chargé."
+                );
             }
 
             initialiserAuthentification();
@@ -727,10 +770,9 @@ async function actualiserStatistiques() {
 
             const boutonActualiser = $("actualiserTableauBord");
 
-            if (
-                boutonActualiser &&
-                !boutonActualiser.dataset.initialise
-            ) {
+            if (boutonActualiser &&
+                !boutonActualiser.dataset.initialise) {
+
                 boutonActualiser.dataset.initialise = "oui";
 
                 boutonActualiser.addEventListener(
@@ -739,22 +781,32 @@ async function actualiserStatistiques() {
                 );
             }
 
-            const sessionValide = await U.restaurerSession();
+            const sessionValide =
+                typeof U.restaurerSession === "function"
+                    ? await U.restaurerSession()
+                    : false;
 
             if (sessionValide) {
                 afficherApplication();
             } else {
                 await afficherEcranConnexion();
             }
+
         } catch (erreur) {
-            console.error("Erreur d'initialisation :", erreur);
+            console.error(
+                "Erreur d'initialisation :",
+                erreur
+            );
 
             await afficherEcranConnexion();
+
         } finally {
             demarrageEnCours = false;
         }
 
-        console.log("SAINT-AMOUR BAR PRO : initialisation terminée.");
+        console.log(
+            "SAINT-AMOUR BAR PRO : initialisation terminée."
+        );
     }
 
     if (document.readyState === "loading") {
@@ -763,6 +815,12 @@ async function actualiserStatistiques() {
             initialiserApplication,
             { once: true }
         );
-    } 
+    } else {
+        initialiserApplication();
+    }
+
+    /* Fonctions accessibles aux autres modules. */
+    window.actualiserStatistiquesBar = actualiserStatistiques;
+    window.afficherPageBar = afficherPage;
+
 })();
-initialiserAuthentification
