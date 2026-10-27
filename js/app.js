@@ -299,12 +299,16 @@
                          */
                         let utilisateur;
 
-                        if (typeof U.connecter === "function") {
-                            utilisateur = await U.connecter(
-                                identifiant,
-                                motDePasse
-                            );
-                        } else if (
+                        if (typeof U.connecterAvecSupabase !== "function") {
+    throw new Error(
+        "Le module Supabase Auth n'est pas chargé."
+    );
+}
+
+const utilisateur = await U.connecterAvecSupabase(
+    identifiant,
+    motDePasse
+); else if (
                             typeof U.connecterAvecSupabase === "function"
                         ) {
                             utilisateur = await U.connecterAvecSupabase(
